@@ -1,4 +1,4 @@
-# trucker_app
+# TruckerApp
 
 This is a student project.
 
