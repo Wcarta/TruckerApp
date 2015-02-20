@@ -2,6 +2,7 @@ package com.example.will.truckerapp;
 
         import android.location.Location;
         import android.os.Bundle;
+        import android.support.v4.app.FragmentActivity;
         import android.support.v7.app.ActionBarActivity;
         import android.util.Log;
         import android.view.View;
@@ -16,6 +17,10 @@ package com.example.will.truckerapp;
         import com.google.android.gms.location.LocationListener;
         import com.google.android.gms.location.LocationRequest;
         import com.google.android.gms.location.LocationServices;
+        import com.google.android.gms.maps.GoogleMap;
+        import com.google.android.gms.maps.SupportMapFragment;
+        import com.google.android.gms.maps.model.LatLng;
+        import com.google.android.gms.maps.model.MarkerOptions;
 
         import java.text.DateFormat;
         import java.util.Date;
@@ -31,6 +36,8 @@ package com.example.will.truckerapp;
  */
 public class Tracking extends ActionBarActivity implements
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
+
+    private GoogleMap mMap;
 
     protected static final String TAG = "location-updates-sample";
 
@@ -57,8 +64,8 @@ public class Tracking extends ActionBarActivity implements
      */
     protected GoogleApiClient mGoogleApiClient;
     /**
-    * Stores parameters for requests to the FusedLocationProviderApi.
-    */
+     * Stores parameters for requests to the FusedLocationProviderApi.
+     */
     protected LocationRequest mLocationRequest;
 
     protected Location mCurrentLocation;
@@ -85,6 +92,7 @@ public class Tracking extends ActionBarActivity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        setUpMapIfNeeded();
 
         mStartUpdatesButton = (Button) findViewById(R.id.start_updates_button);
         mStopUpdatesButton = (Button) findViewById(R.id.stop_updates_button);
@@ -222,9 +230,28 @@ public class Tracking extends ActionBarActivity implements
     @Override
     public void onResume() {
         super.onResume();
+        setUpMapIfNeeded();
         if (mGoogleApiClient.isConnected() && !mRequestingLocationUpdates) {
             startLocationUpdates();
         }
+    }
+
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
+            }
+        }
+    }
+
+    private void setUpMap() {
+        mMap.addMarker(new MarkerOptions().position(new LatLng(0,0)).title("Current Location"));
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())).title("Current Location"));
     }
 
     @Override
