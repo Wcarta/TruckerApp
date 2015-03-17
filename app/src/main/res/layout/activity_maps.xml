@@ -24,11 +24,12 @@
     android:id="@+id/stop_updates_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignParentRight="true"
-    android:layout_marginTop="@dimen/ui_group_top_margin"
     android:enabled="false"
     android:onClick="stopUpdatesButtonHandler"
-    android:text="@string/stop_updates" />
+    android:text="@string/stop_updates"
+    android:layout_alignTop="@+id/start_updates_button"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true" />
 
 <TextView
     android:id="@+id/latitude_label"

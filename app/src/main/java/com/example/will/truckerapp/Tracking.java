@@ -17,8 +17,11 @@ package com.example.will.truckerapp;
         import com.google.android.gms.location.LocationListener;
         import com.google.android.gms.location.LocationRequest;
         import com.google.android.gms.location.LocationServices;
+        import com.google.android.gms.maps.CameraUpdate;
+        import com.google.android.gms.maps.CameraUpdateFactory;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.SupportMapFragment;
+        import com.google.android.gms.maps.model.BitmapDescriptorFactory;
         import com.google.android.gms.maps.model.LatLng;
         import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -36,6 +39,7 @@ package com.example.will.truckerapp;
  */
 public class Tracking extends ActionBarActivity implements
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
+
 
     private GoogleMap mMap;
 
@@ -91,21 +95,21 @@ public class Tracking extends ActionBarActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-        setUpMapIfNeeded();
+            setContentView(R.layout.activity_maps);
+            setUpMapIfNeeded();
 
-        mStartUpdatesButton = (Button) findViewById(R.id.start_updates_button);
-        mStopUpdatesButton = (Button) findViewById(R.id.stop_updates_button);
-        mLatitudeTextView = (TextView) findViewById(R.id.latitude_text);
-        mLongitudeTextView = (TextView) findViewById(R.id.longitude_text);
-        mLastUpdateTimeTextView = (TextView) findViewById(R.id.last_update_time_text);
+            mStartUpdatesButton = (Button) findViewById(R.id.start_updates_button);
+            mStopUpdatesButton = (Button) findViewById(R.id.stop_updates_button);
+            mLatitudeTextView = (TextView) findViewById(R.id.latitude_text);
+            mLongitudeTextView = (TextView) findViewById(R.id.longitude_text);
+            mLastUpdateTimeTextView = (TextView) findViewById(R.id.last_update_time_text);
 
-        mRequestingLocationUpdates = false;
-        mLastUpdateTime = "";
+            mRequestingLocationUpdates = false;
+            mLastUpdateTime = "";
 
-        updateValuesFromBundle(savedInstanceState);
+            updateValuesFromBundle(savedInstanceState);
 
-        buildGoogleApiClient();
+            buildGoogleApiClient();
     }
 
     private void updateValuesFromBundle(Bundle savedInstanceState) {
@@ -161,7 +165,7 @@ public class Tracking extends ActionBarActivity implements
         // application will never receive updates faster than this value.
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
     /**
@@ -171,15 +175,24 @@ public class Tracking extends ActionBarActivity implements
     public void startUpdatesButtonHandler(View view) {
         if (!mRequestingLocationUpdates) {
             mRequestingLocationUpdates = true;
-            setButtonsEnabledState();
+//            setButtonsEnabledState();
             startLocationUpdates();
+            Toast.makeText(this, getResources().getString(R.string.stop_updates), Toast.LENGTH_SHORT).show();
+//            start_updates  "Start updates";
+        }
+        else if (mRequestingLocationUpdates) {
+            mRequestingLocationUpdates = false;
+//            setButtonsEnabledState();
+            stopLocationUpdates();
+            Toast.makeText(this, getResources().getString(R.string.start_updates), Toast.LENGTH_SHORT).show();
+//            start_updates = "Stop updates";
         }
     }
 
-    /**
-     * Handles the Stop Updates button, and requests removal of location updates. Does nothing if
-     * updates were not previously requested.
-     */
+//    /**
+//     * Handles the Stop Updates button, and requests removal of location updates. Does nothing if
+//     * updates were not previously requested.
+//     */
     public void stopUpdatesButtonHandler(View view) {
         if (mRequestingLocationUpdates) {
             mRequestingLocationUpdates = false;
@@ -244,14 +257,23 @@ public class Tracking extends ActionBarActivity implements
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap();
+                setUpMap(mCurrentLocation);
             }
         }
     }
 
-    private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0,0)).title("Current Location"));
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())).title("Current Location"));
+    private void setUpMap(Location location) {
+        // Creating a LatLng object for the current location
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        // Showing the current location in Google Map
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+                latLng, 15);
+        mMap.animateCamera(cameraUpdate);
+        mMap.addMarker(new MarkerOptions().position(latLng).title("Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_circle_white)));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(26,80)).title("I don't even know").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_circle_white)));
+//        double lat = (mCurrentLocation.getLatitude());
+//        double lng = (mCurrentLocation.getLongitude());
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Location"));
     }
 
     @Override
