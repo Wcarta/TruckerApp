@@ -22,6 +22,7 @@ package com.example.will.truckerapp;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.SupportMapFragment;
         import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+        import com.google.android.gms.maps.model.CameraPosition;
         import com.google.android.gms.maps.model.LatLng;
         import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -73,6 +74,8 @@ public class Tracking extends ActionBarActivity implements
     protected LocationRequest mLocationRequest;
 
     protected Location mCurrentLocation;
+
+    protected LatLng latLng;
 
     // UI Widgets.
     protected Button mStartUpdatesButton;
@@ -135,7 +138,7 @@ public class Tracking extends ActionBarActivity implements
             if (savedInstanceState.keySet().contains(LAST_UPDATED_TIME_STRING_KEY)) {
                 mLastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
             }
-            updateUI();
+            //updateUI();
         }
     }
 
@@ -165,7 +168,7 @@ public class Tracking extends ActionBarActivity implements
         // application will never receive updates faster than this value.
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     /**
@@ -227,6 +230,8 @@ public class Tracking extends ActionBarActivity implements
         mLatitudeTextView.setText(String.valueOf(mCurrentLocation.getLatitude()));
         mLongitudeTextView.setText(String.valueOf(mCurrentLocation.getLongitude()));
         mLastUpdateTimeTextView.setText(mLastUpdateTime);
+
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(1,2)).title("I don't even know").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_circle_white)));
     }
 
 
@@ -257,23 +262,20 @@ public class Tracking extends ActionBarActivity implements
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap(mCurrentLocation);
+                setUpMap();
             }
         }
     }
 
-    private void setUpMap(Location location) {
+    private void setUpMap() {
         // Creating a LatLng object for the current location
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng latLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         // Showing the current location in Google Map
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                latLng, 15);
-        mMap.animateCamera(cameraUpdate);
+        //CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+                //latLng, 15);
+        //mMap.animateCamera(cameraUpdate);
         mMap.addMarker(new MarkerOptions().position(latLng).title("Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_circle_white)));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(26,80)).title("I don't even know").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_circle_white)));
-//        double lat = (mCurrentLocation.getLatitude());
-//        double lng = (mCurrentLocation.getLongitude());
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Location"));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(1,2)).title("I don't even know").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_circle_white)));
     }
 
     @Override
@@ -311,8 +313,10 @@ public class Tracking extends ActionBarActivity implements
         if (mCurrentLocation == null) {
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-            updateUI();
+            //updateUI();
+            setUpMap();
         }
+
 
         // If the user presses the Start Updates button before GoogleApiClient connects, we set
         // mRequestingLocationUpdates to true (see startUpdatesButtonHandler()). Here, we check
@@ -326,7 +330,8 @@ public class Tracking extends ActionBarActivity implements
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        updateUI();
+        //updateUI();
+        setUpMap();
         Toast.makeText(this, getResources().getString(R.string.location_updated_message),
                 Toast.LENGTH_SHORT).show();
     }
